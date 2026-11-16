@@ -1,307 +1,213 @@
-# ORION Maintenance Lite
 
-# Fase 3: Preparación del entorno de desarrollo
+# ORION Maintenance Lite
+# Fase 3: Desarrollo
 
 ## 1. Descripción de la fase
 
-Durante esta fase se realizó la preparación del entorno de desarrollo de **ORION Maintenance Lite**, dejando configuradas las herramientas, dependencias y estructuras iniciales necesarias para comenzar la implementación del sistema.
+En esta fase se realizó el desarrollo de los componentes principales del proyecto ORION Maintenance Lite, teniendo como objetivo construir una API para gestionar activos y órdenes de trabajo de mantenimiento.
 
-El trabajo se desarrolló tomando como referencia las decisiones establecidas en las fases anteriores:
+Se implementó la estructura del backend, la conexión con la base de datos, los modelos, las operaciones de consulta y modificación, las reglas de negocio y los endpoints necesarios para cumplir con las funcionalidades principales.
 
-- `REFINEMENT.md`: documento de análisis y refinamiento de requerimientos.
-- `docs/fase-02-diseno-tecnico/DISENO_TECNICO.md`: documento de diseño técnico y arquitectura del sistema.
+El frontend desarrollado con React y Vite se encuentra pendiente de implementación.
 
-El propósito fue disponer de una estructura organizada para trabajar de manera independiente en el backend y el frontend, manteniendo la arquitectura aprobada y evitando implementar funcionalidades antes de la fase correspondiente.
+## 2. Tecnologías y herramientas utilizadas
 
-## 2. Entorno de desarrollo utilizado
+Para el desarrollo del proyecto se utilizaron las siguientes tecnologías:
 
-Para preparar el entorno se utilizaron las siguientes herramientas:
+### Backend
+- Python 3.14.3.
+- FastAPI para la construcción de la API REST.
+- SQLAlchemy para la interacción con la base de datos.
+- Pydantic para la validación de datos.
+- Alembic para el control de migraciones.
+- PostgreSQL como sistema de gestión de base de datos.
+- Supabase como servicio de base de datos.
+- Pytest para las pruebas automatizadas.
 
-| Herramienta | Utilización en el proyecto |
-|---|---|
-| Python | Entorno de desarrollo del backend. |
-| FastAPI | Framework seleccionado para construir la API REST. |
-| SQLAlchemy 2.0 | ORM previsto para la comunicación con PostgreSQL. |
-| Pydantic 2 | Validación y estructuración de datos. |
-| Alembic | Preparación del sistema de migraciones. |
-| PostgreSQL / Supabase | Motor de base de datos definido para el proyecto. |
-| React | Desarrollo de la interfaz de usuario. |
-| Vite | Creación y ejecución del entorno frontend. |
-| React Router | Organización de la navegación. |
-| Axios | Comunicación HTTP con el backend. |
-| Pytest | Framework seleccionado para las pruebas automatizadas. |
-| Git | Control de versiones del proyecto. |
-| GitHub | Repositorio remoto para almacenar el código fuente. |
+### Frontend
+- React.
+- Vite.
+- React Router DOM.
+- Axios.
 
-### 2.1. Versiones del entorno
+**Estado:** pendiente de desarrollo e integración con el backend.
 
-Se realizó la comprobación de las herramientas instaladas en el equipo mediante los comandos correspondientes.
+### Control de versiones
+- Git.
+- GitHub.
 
-| Herramienta | Comando utilizado | Versión obtenida |
-|---|---|---|
-| Python | `py --version` | Python 3.14.3 |
-| Node.js | `node --version` | v24.13.1 |
-| npm | `npm --version` | 11.8.0 |
-| Git | `git --version` | git version 2.53.0.windows.1 |
+## 3. Organización del proyecto
 
-## 3. Organización del repositorio
+El repositorio se organizó separando el backend, el frontend y la documentación.
 
-Se preparó la estructura de trabajo del proyecto para mantener separados los componentes del backend, el frontend y la documentación.
-
-La organización general contempla:
+La estructura principal es la siguiente:
 
 ```text
-ORION-MAINTENANCE-LITE/
+PruebaTecnicaSENA/
 │
 ├── backend/
+│   ├── alembic/
 │   ├── app/
-│   │   ├── core/
+│   │   ├── config/
+│   │   ├── exceptions/
 │   │   ├── models/
-│   │   ├── schemas/
 │   │   ├── repositories/
-│   │   ├── services/
 │   │   ├── routers/
-│   │   └── exceptions/
-│   │
+│   │   ├── schemas/
+│   │   └── services/
 │   ├── tests/
 │   │   ├── unit/
 │   │   └── integration/
-│   │
-│   ├── alembic/
-│   ├── alembic.ini
-│   ├── requirements.txt
-│   ├── pytest.ini
-│   └── .env.example
+│   ├── .env.example
+│   ├── .gitignore
+│   └── requirements.txt
 │
 ├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── routes/
-│   │   ├── services/
-│   │   ├── hooks/
-│   │   └── styles/
-│   │
-│   ├── index.html
-│   ├── package.json
-│   └── .env.example
 │
-├── docs/
-│   ├── fase-02-diseno-tecnico/
-│   │   └── DISENO_TECNICO.md
-│   └── ...
-│
-├── .gitignore
-├── REFINEMENT.md
-└── README.md
+└── docs/
+    ├── fase-02-diseno-tecnico/
+    ├── fase-03-desarrollo/
+    └── fase-04-pruebas/
 ```
 
-La estructura representa la organización prevista para el desarrollo. Los directorios se irán completando con sus respectivos archivos durante las fases de implementación.
+## 4. Desarrollo del backend
 
-## 4. Preparación del backend
+Se implementó el backend utilizando FastAPI, organizando el código por responsabilidades para facilitar su mantenimiento y comprensión.
 
-Se preparó el entorno de Python destinado al desarrollo de la API de ORION Maintenance Lite.
+La aplicación cuenta con los siguientes componentes:
 
-### 4.1. Entorno virtual
+### 4.1 Modelos
 
-Se creó un entorno virtual independiente dentro del directorio `backend`, con el propósito de aislar las dependencias del proyecto y evitar conflictos con otros proyectos de Python instalados en el equipo.
+Se crearon los modelos correspondientes a las entidades principales del sistema:
 
-La ubicación definida fue:
+- **Asset:** representa los activos que se registran para su mantenimiento.
+- **WorkOrder:** representa las órdenes de trabajo asociadas a los activos.
 
-```text
-backend/.venv/
-```
+Los modelos se relacionan mediante una relación de uno a muchos: un activo puede tener varias órdenes de trabajo.
 
-### 4.2. Dependencias
+### 4.2 Esquemas de validación
 
-Se creó el archivo `backend/requirements.txt` para centralizar las dependencias necesarias para el desarrollo del backend.
+Se utilizaron esquemas de Pydantic para validar la información recibida y definir la estructura de los datos que entrega la API.
 
-Se incorporaron las siguientes librerías:
+Se incluyen validaciones para los campos obligatorios, valores permitidos y formatos de información.
 
-| Dependencia | Función |
-|---|---|
-| fastapi | Construcción de la API REST. |
-| uvicorn | Servidor ASGI para ejecutar FastAPI. |
-| sqlalchemy | Gestión de modelos y operaciones de base de datos. |
-| pydantic | Validación de datos. |
-| pydantic-settings | Administración de configuraciones. |
-| python-dotenv | Lectura de variables de entorno. |
-| alembic | Control de migraciones. |
-| psycopg2-binary | Conector de PostgreSQL. |
-| pytest | Ejecución de pruebas automatizadas. |
-| httpx | Cliente HTTP para pruebas de endpoints. |
+### 4.3 Repositorios
 
-Las versiones se restringieron mediante rangos compatibles para mantener un entorno controlado.
+Se implementaron repositorios para separar las operaciones de acceso a la base de datos de la lógica del sistema.
 
-### 4.3. Aplicación inicial
+Entre sus responsabilidades se encuentran:
 
-Se preparó `backend/app/main.py` con una instancia inicial de FastAPI.
+- Registrar activos.
+- Consultar activos.
+- Actualizar activos.
+- Desactivar activos.
+- Registrar órdenes de trabajo.
+- Consultar órdenes de trabajo.
+- Consultar órdenes para actualizar su estado.
 
-También se incorporó el endpoint:
+### 4.4 Servicios
 
-```text
-GET /api/health
-```
+Se desarrollaron servicios para implementar las reglas de negocio del proyecto.
 
-Este endpoint permite comprobar posteriormente que la aplicación puede iniciar y responder solicitudes HTTP.
+Entre las principales reglas implementadas están:
 
-Su implementación es únicamente una comprobación técnica del entorno y no representa todavía una funcionalidad de negocio.
+- Evitar el registro de activos duplicados.
+- Validar que los activos existan antes de crear órdenes de trabajo.
+- Impedir la creación de órdenes para activos inactivos.
+- Permitir la desactivación de activos sin eliminar sus registros.
+- Controlar las transiciones de estado de las órdenes de trabajo.
+- Impedir cambios de estado que no sigan el flujo establecido.
 
-### 4.4. Configuración de pruebas
+### 4.5 Endpoints de la API
 
-Se creó `backend/pytest.ini` para establecer la ubicación y los patrones de identificación de las futuras pruebas automatizadas.
+Se implementaron los siguientes endpoints:
 
-Se prepararon los directorios:
+| Método | Endpoint | Funcionalidad |
+|---|---|---|
+| GET | `/api/health` | Verificar el estado de la API. |
+| POST | `/api/assets` | Registrar un activo. |
+| GET | `/api/assets` | Consultar todos los activos. |
+| GET | `/api/assets/{asset_id}` | Consultar un activo por ID. |
+| PUT | `/api/assets/{asset_id}` | Actualizar un activo. |
+| PATCH | `/api/assets/{asset_id}/deactivate` | Desactivar un activo. |
+| POST | `/api/work-orders` | Crear una orden de trabajo. |
+| GET | `/api/work-orders` | Consultar todas las órdenes. |
+| GET | `/api/work-orders/{work_order_id}` | Consultar una orden por ID. |
+| PATCH | `/api/work-orders/{work_order_id}/status` | Actualizar el estado de una orden. |
 
-- `backend/tests/unit/`
-- `backend/tests/integration/`
+## 5. Base de datos
 
-Las pruebas de las reglas de negocio y de las operaciones con PostgreSQL se desarrollarán en las fases posteriores.
+Se configuró la conexión del backend con PostgreSQL mediante Supabase.
 
-### 4.5. Configuración de variables de entorno
+Se implementaron las tablas principales:
 
-Se creó `backend/.env.example` como plantilla de configuración.
+- **assets:** almacena la información de los activos.
+- **work_orders:** almacena las órdenes de trabajo y su relación con los activos.
 
-Se contemplaron las variables necesarias para el entorno de desarrollo, incluyendo:
+También se configuraron las claves primarias, claves foráneas, restricciones de validación e índices necesarios para mantener la integridad de los datos.
 
-- `ENVIRONMENT`
-- `DATABASE_URL`
-- `FRONTEND_ORIGIN`
+La relación entre las tablas permite asociar varias órdenes de trabajo a un mismo activo.
 
-No se incorporaron credenciales reales al repositorio. La conexión efectiva con Supabase se configurará en la fase correspondiente.
+## 6. Migraciones con Alembic
 
-## 5. Preparación de Alembic
+Se configuró Alembic para administrar los cambios en la estructura de la base de datos.
 
-Se inicializó la estructura de Alembic dentro del backend para dejar preparado el sistema de control de migraciones de la base de datos.
+Se generó y aplicó la migración:
 
-La estructura generada contempla:
+`ddf7a5112708_create_assets_and_work_orders_tables.py`
 
-```text
-backend/
-├── alembic/
-│   ├── versions/
-│   ├── env.py
-│   └── script.py.mako
-│
-└── alembic.ini
-```
+La migración permitió crear las tablas `assets` y `work_orders`, junto con sus restricciones y relaciones.
 
-Durante esta fase únicamente se preparó la estructura de migraciones.
+Se verificó que la migración quedara aplicada correctamente en la base de datos.
 
-No se generaron migraciones de las tablas de activos y órdenes de trabajo, debido a que los modelos SQLAlchemy y su metadata corresponden a la implementación posterior del backend.
+## 7. Configuración y seguridad
 
-## 6. Preparación del frontend
+Se configuraron las variables de entorno para manejar la conexión a la base de datos sin incluir credenciales directamente en el código.
 
-Se creó el proyecto frontend utilizando React y Vite, estableciendo un entorno independiente para el desarrollo de la interfaz de usuario.
+Se utilizaron archivos `.env` y `.env.example` para separar la configuración local de la información que puede compartirse en el repositorio.
 
-### 6.1. Dependencias
+También se configuró `.gitignore` para evitar subir archivos sensibles y carpetas del entorno virtual.
 
-Se instalaron las dependencias iniciales:
+## 8. Desarrollo del frontend
 
-| Dependencia | Utilización |
-|---|---|
-| React | Construcción de la interfaz. |
-| React DOM | Renderizado de la aplicación. |
-| Vite | Servidor de desarrollo y compilación. |
-| React Router DOM | Administración de rutas. |
-| Axios | Comunicación con la API. |
+El frontend del proyecto está pendiente de desarrollo.
 
-### 6.2. Organización inicial
+Se tiene previsto utilizar React y Vite para construir la interfaz gráfica y Axios para realizar las solicitudes HTTP al backend.
 
-Se preparó la estructura de `frontend/src` para organizar posteriormente los componentes, páginas, rutas, servicios, hooks y estilos de la aplicación.
+Entre las funcionalidades que se deberán implementar se encuentran:
 
-### 6.3. Variables de entorno
+- Visualización de los activos registrados.
+- Registro y edición de activos.
+- Consulta y desactivación de activos.
+- Creación de órdenes de trabajo.
+- Consulta de órdenes de trabajo.
+- Actualización del estado de las órdenes.
+- Integración con los endpoints del backend.
 
-Se creó `frontend/.env.example` con la variable:
+Estas funcionalidades se desarrollarán en una etapa posterior.
 
-```text
-VITE_API_BASE_URL=http://127.0.0.1:8000/api
-```
+## 9. Verificaciones del desarrollo
 
-Esta variable permitirá establecer la dirección base del backend desde el frontend cuando se realice la integración.
+Durante el desarrollo se realizaron verificaciones para comprobar la configuración y el funcionamiento del backend.
 
-## 7. Control de versiones y protección de archivos
+Se verificó:
 
-Se preparó el archivo `.gitignore` en la raíz del repositorio para excluir archivos generados durante el desarrollo y evitar la publicación de información privada.
+- La importación de la aplicación FastAPI.
+- La disponibilidad de los endpoints registrados.
+- La conexión con PostgreSQL.
+- La aplicación de las migraciones de Alembic.
+- La ejecución de las pruebas automatizadas.
 
-Se contemplaron exclusiones para:
+La ejecución de las pruebas se documenta con mayor detalle en el documento de la Fase 4: `docs/fase-04-pruebas/PLAN_PRUEBAS.md`.
 
-- Entornos virtuales de Python.
-- Dependencias instaladas de Node.js.
-- Archivos temporales de Python.
-- Caché y resultados temporales de pruebas.
-- Archivos de compilación de Vite.
-- Variables de entorno locales.
-- Archivos propios de editores y sistemas operativos.
+## 10. Resultado de la fase
 
-Se mantuvieron permitidos los archivos `.env.example`, ya que contienen únicamente plantillas sin credenciales reales.
+Como resultado de esta fase se cuenta con un backend funcional para la gestión de activos y órdenes de trabajo de mantenimiento.
 
-También se preparó el repositorio Git para registrar los avances del proyecto mediante commits.
+Se implementaron los modelos, esquemas, repositorios, servicios, reglas de negocio, endpoints y conexión con la base de datos PostgreSQL.
 
-## 8. Verificaciones realizadas
+El backend cuenta con pruebas unitarias y de integración documentadas en la siguiente fase.
 
-En esta sección se documentan las comprobaciones realizadas durante la preparación del entorno.
+El frontend con React y Vite permanece pendiente de desarrollo, por lo que todavía no se cuenta con una interfaz gráfica integrada con la API.
 
-| Elemento comprobado | Resultado |
-|---|---|
-| Versiones de Python, Node.js, npm y Git | Pendiente de registrar |
-| Creación del entorno virtual | Pendiente de registrar |
-| Instalación de dependencias del backend | Pendiente de registrar |
-| Importación de la aplicación FastAPI | Pendiente de registrar |
-| Inicio del servidor backend | Pendiente de registrar |
-| Respuesta de `/api/health` | Pendiente de registrar |
-| Acceso a Swagger | Pendiente de registrar |
-| Instalación de dependencias frontend | Pendiente de registrar |
-| Inicio del servidor Vite | Pendiente de registrar |
-| Inicialización de Alembic | Pendiente de registrar |
-| Configuración de Git | Pendiente de registrar |
-| Creación del commit | Pendiente de registrar |
-| Publicación en GitHub | Pendiente de registrar |
-
-Los resultados se actualizarán a medida que se realicen las verificaciones. No se consideran exitosas las actividades que todavía no hayan sido ejecutadas.
-
-## 9. Evidencias del desarrollo
-
-Las evidencias de esta fase estarán relacionadas con los archivos y resultados obtenidos durante la preparación del entorno.
-
-Se contemplan las siguientes evidencias:
-
-1. Versiones de las herramientas instaladas.
-2. Estructura de directorios del proyecto.
-3. Archivo `requirements.txt` y dependencias instaladas.
-4. Aplicación inicial de FastAPI.
-5. Endpoint de salud y documentación Swagger.
-6. Archivos de configuración de Alembic.
-7. Proyecto React con Vite y dependencias instaladas.
-8. Archivos `.env.example`.
-9. Archivo `.gitignore`.
-10. Historial de commits y repositorio remoto en GitHub.
-
-Las capturas y resultados correspondientes se incorporarán conforme se complete cada actividad.
-
-## 10. Alcance de la preparación
-
-Al terminar esta fase se busca dejar disponible la infraestructura inicial necesaria para comenzar la implementación de ORION Maintenance Lite.
-
-Por lo tanto, esta etapa no contempla todavía:
-
-- Implementación de los modelos de activos y órdenes de trabajo.
-- Esquemas de validación de negocio.
-- Repositorios y servicios.
-- Endpoints funcionales de activos y órdenes.
-- Reglas de transición de estados.
-- Manejo centralizado de excepciones.
-- Migración inicial de la base de datos.
-- Integración real con Supabase.
-- Desarrollo de la interfaz funcional.
-- Pruebas de las reglas de negocio.
-
-Estas actividades se desarrollarán en las fases correspondientes, respetando el diseño técnico aprobado.
-
-## 11. Resultado de la fase
-
-La Fase 3 tiene como finalidad dejar organizado y configurado el entorno de desarrollo de ORION Maintenance Lite.
-
-El resultado se documentará a partir de las actividades efectivamente realizadas, las configuraciones incorporadas al repositorio y las verificaciones obtenidas.
-
-Con esta preparación se establece la base de trabajo para continuar con la implementación del backend, la integración con PostgreSQL y el desarrollo del frontend.
+Con esto se deja preparada la base funcional del sistema para continuar con la construcción del frontend y su posterior integración.
