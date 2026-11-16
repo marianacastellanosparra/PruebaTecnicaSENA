@@ -1,3 +1,4 @@
+
 # Ejercicio de análisis y refinamiento
 
 ## Propósito
@@ -27,16 +28,19 @@ Considera preguntas como: ¿cuándo son duplicados?, ¿el nombre es único?, ¿e
 2. ¿Los activos inactivos participan en la validación de duplicados para impedir que se reingrese un equipo con el mismo nombre, tipo y ubicación bajo otro estado?
 3. ¿El sistema debe rechazar por completo la inserción de un activo duplicado devolviendo un código de conflicto o permitir una advertencia interactiva al usuario?
 ```
+
 ### Supuestos
 ```text
 1. Un activo es considerado duplicado si coincide exactamente en nombre (`name`), tipo (`asset_type`) y ubicación (`location`).
 2. La validación debe contemplar tanto activos activos como inactivos para preservar la integridad histórica del inventario.
 3. El sistema debe bloquear la operación de forma estricta y retornar un error controlado.
 ```
+
 ### Decisión de implementación
 ```text
 Se validará la unicidad en la capa de servicios de FastAPI y se respaldará a nivel de base de datos con un índice único funcional en PostgreSQL denominado exactamente `uq_assets_normalized_identity`, utilizando las expresiones: `LOWER(BTRIM(name))`, `LOWER(BTRIM(asset_type))` y `LOWER(BTRIM(location))`. Cualquier intento de duplicado producirá un código HTTP `409 Conflict`.
 ```
+
 ### Riesgos
 ```text
 1. Que diferencias mínimas involuntarias en la captura de datos (ej. errores tipográficos sutiles) pasen la validación y generen duplicados lógicos.
@@ -55,16 +59,19 @@ Un activo puede tener órdenes asociadas. ¿Debe eliminarse permanentemente?, ¿
 2. ¿Qué ocurre con las órdenes de trabajo históricas asociadas a un activo dado de baja?
 3. ¿Los activos inactivos deben seguir apareciendo en los listados y consultas habituales de la interfaz?
 ```
+
 ### Supuestos
 ```text
 1. Los activos nunca se eliminan físicamente de la base de datos (`DELETE`) para salvaguardar la integridad referencial y la trazabilidad de las órdenes.
 2. La acción solicitada como eliminación corresponde en realidad a una desactivación lógica (cambio de estado a Inactivo).
 3. Las órdenes de trabajo históricas deben conservarse íntegras y asociadas al activo.
 ```
+
 ### Decisión
 ```text
 No se implementará borrado físico. Se utilizará un endpoint dedicado para desactivación lógica (`PATCH /api/assets/{id}/deactivate`), el cual modificará el estado del activo a Inactivo, manteniendo su disponibilidad para consultas y preservando todas sus órdenes asociadas.
 ```
+
 ### Riesgos
 ```text
 1. Crecimiento acumulativo de registros inactivos obsoletos en tablas transaccionales a largo plazo.
@@ -80,19 +87,22 @@ No se indica si un activo puede tener varias órdenes abiertas al mismo tiempo. 
 ### Preguntas adicionales
 ```text
 1. ¿Puede un activo poseer múltiples órdenes de trabajo abiertas al mismo tiempo?
-2. ¿Se debe restringir la creación de órdenes si el activo se encuentra inactivo?
+2. ¿Se debe restringir la creación de órdenes si el activo se encuentra en estado inactivo?
 3. ¿Cómo interactúan las prioridades de distintas órdenes sobre un mismo equipo?
 ```
+
 ### Supuestos
 ```text
 1. Funcionalmente, se permite que un activo tenga múltiples órdenes de trabajo registradas y abiertas de manera simultánea (ej. una revisión eléctrica y una reparación mecánica).
 2. Está prohibido crear nuevas órdenes de trabajo para activos que se encuentren en estado Inactivo.
 3. Las prioridades operan de forma independiente por cada orden.
 ```
+
 ### Decisión
 ```text
-Se permitirá que un activo tenga múltiples órdenes de trabajo abiertas simultáneamente, validando de forma previa que el activo exista y se encuentre en estado Activo. Si el activo está inactivo, la operación será rechazada con HTTP `409 Conflict`. A nivel técnico, la creación de órdenes y la desactivación de activos deben coordinarse mediante bloqueo de filas y transacciones atómicas seguras, utilizando `with_for_update()` cuando corresponda para evitar condiciones de carrera.
+Se permitirá que un activo tenga múltiples órdenes de trabajo abiertas simultáneamente, validando de forma previa que el activo exista y se encuentre en estado Activo. Si el activo está inactivo, la operación será rechazada con HTTP `409 Conflict`.
 ```
+
 ### Riesgos
 ```text
 1. Saturación operativa de órdenes abiertas sobre un mismo equipo crítico sin una supervisión centralizada adecuada.
@@ -110,16 +120,19 @@ Considera: ¿se puede finalizar directamente una pendiente?, ¿puede reabrirse?,
 2. ¿Una orden finalizada puede ser reabierta o modificada en su estado?
 3. ¿Se requiere un estado adicional como Cancelada en el MVP?
 ```
+
 ### Supuestos
 ```
 1. El ciclo de vida de una orden es estrictamente secuencial y unidireccional: Pendiente → En progreso → Finalizada.
 2. No se permiten saltos de estado ni retrocesos de ningún tipo.
 3. No se contempla el estado Cancelada ni la reversión de órdenes finalizadas en el alcance actual.
 ```
+
 ### Decisión
 ```
 Se implementará una máquina de estados rígida en la capa de servicios del backend que valide exclusivamente las transiciones permitidas (Pendiente a En progreso, y En progreso a Finalizada). Cualquier salto o intento de modificar una orden finalizada provocará un error HTTP `409 Conflict`.
 ```
+
 ### Riesgos
 ```text
 1. Falta de flexibilidad ante errores operativos humanos al registrar cambios de estado definitivos.
@@ -137,16 +150,19 @@ No se indica quién asigna la prioridad ni qué efecto tiene. ¿Se puede cambiar
 2. ¿La prioridad influye en la ejecución automática o solo en la visualización?
 3. ¿Es obligatoria la edición posterior de la prioridad?
 ```
+
 ### Supuestos
 ```
 1. La prioridad debe ser seleccionada obligatoriamente por el usuario al momento de crear una orden de trabajo.
 2. Los valores permitidos son acotados estrictamente a Baja, Media y Alta. Pydantic validará que se proporcione una prioridad válida sin establecer valores predeterminados automáticos.
 3. Su función principal en el MVP es ordenar visualmente la atención técnica mediante componentes gráficos distintivos.
 ```
+
 ### Decisión
 ```
 Se requerirá el campo `priority` como obligatorio en la carga útil de creación, validando que contenga alguno de los valores permitidos (Baja, Media, Alta), sin incorporar reglas de prioridad automática, y permitiendo su visualización mediante etiquetas tipográficas en el listado de la interfaz.
 ```
+
 ### Riesgos
 ```
 1. Asignación masiva y subjetiva de prioridad Alta a todas las órdenes, perdiendo efectividad operativa.
@@ -163,15 +179,18 @@ La versión obligatoria no solicita gestión de usuarios o cuadrillas. ¿Debe in
 1. ¿Se requiere un módulo de usuarios, perfiles o autenticación para asignar responsables?
 2. ¿La gestión de cuadrillas forma parte del alcance obligatorio del MVP?
 ```
+
 ### Supuestos
 ```text
 1. La autenticación de usuarios, roles y gestión de cuadrillas quedan completamente fuera del alcance obligatorio del MVP.
 2. Las órdenes se gestionan asociadas directamente a los activos y sus descripciones técnicas globales.
 ```
+
 ### Decisión
 ```text
 Se omitirá la asignación de responsables y la autenticación de usuarios en esta versión, enfocando los esfuerzos en la solidez del inventario y el ciclo de vida de las órdenes.
 ```
+
 ### Riesgos
 ```text
 1. Ausencia de trazabilidad individual sobre el personal técnico que ejecuta físicamente el mantenimiento.
@@ -211,6 +230,7 @@ Clasifica cada funcionalidad como Obligatoria, Importante, Opcional o Fuera del 
 - Base de datos: PostgreSQL alojada en Supabase para persistencia relacional en la nube.
 - Pruebas: Pytest para la validación automatizada de reglas de negocio y componentes.
 ```
+
 ## Organización del código
 ```text
 Arquitectura monolítica modular organizada por capas estrictas:
@@ -226,14 +246,17 @@ Arquitectura monolítica modular organizada por capas estrictas:
 
 Ubicada bajo la carpeta `backend/app/`, y complementada por `frontend/src/` y la documentación en `docs/`.
 ```
+
 ## Persistencia
 ```text
 PostgreSQL en Supabase, utilizando conexiones seguras con SSL (`sslmode=require`), manejadores de sesión transaccionales y marcas de tiempo con zona horaria (`TIMESTAMP WITH TIME ZONE` y `DateTime(timezone=True)`).
 ```
+
 ## Validaciones
 ```text
 Validación robusta en doble capa: Pydantic v2 en las entradas HTTP (tipos, longitudes y enumeraciones estrictas) y lógica de negocio en la capa de servicios para unicidad, relaciones y reglas de transición.
 ```
+
 ## Manejo de errores
 ```text
 Estructura de errores centralizada y uniforme basada en excepciones personalizadas (`AppException`) y manejadores globales de FastAPI que gestionan las excepciones personalizadas, errores HTTP, errores de validación de Pydantic y errores internos inesperados sin exponer trazas de código ni información sensible. Las respuestas devuelven una estructura uniforme:
@@ -246,21 +269,21 @@ json
   "details": []
 }
 
-
-
 Donde:
 
 - `message` contiene la descripción del error.
 - `code` contiene el código HTTP numérico.
 - `error` identifica el tipo de error.
 - `details` contiene información adicional cuando corresponda.
-
 ```
+
 ## Pruebas prioritarias
 ```text
-Suite automatizada con Pytest enfocada en validar reglas de negocio críticas, restricciones de unicidad mediante índices funcionales en PostgreSQL (`uq_assets_normalized_identity`), control de concurrencia (`with_for_update()`), transiciones de estados e integridad referencial. Las pruebas de integración se ejecutarán contra una instancia real de PostgreSQL una vez finalizado el desarrollo de las fases correspondientes.
+Se implementó una suite de 24 pruebas automatizadas con Pytest, compuesta por 18 pruebas unitarias y 6 pruebas de integración. Estas verifican funcionalidades importantes como el registro y consulta de activos, la validación de datos, la prevención de duplicados, la creación y consulta de órdenes de trabajo, las relaciones entre activos y órdenes, y las transiciones permitidas de estados.
 
+Las pruebas se ejecutaron correctamente y se obtuvo el resultado de 24 pruebas aprobadas (24 passed). Esto permitió comprobar el funcionamiento de las reglas de negocio y la persistencia de la información.
 ```
+
 ## Riesgos de seguridad identificados
 ```text
 Exposición accidental de credenciales o cadenas de conexión (mitigado mediante el uso riguroso de variables de entorno y exclusión en `.gitignore`) y ausencia inicial de autenticación o roles de usuario (gestionado como limitación documentada del MVP).
@@ -284,35 +307,56 @@ Exposición accidental de credenciales o cadenas de conexión (mitigado mediante
 
 ## Funcionalidades completadas
 ```text
-
+- Registro, listado, consulta y edición de activos.
+- Desactivación lógica de activos.
+- Validación de activos duplicados.
+- Creación y consulta de órdenes de trabajo.
+- Asociación de órdenes con activos existentes.
+- Validación de prioridades.
+- Control de transiciones de estados.
+- Persistencia en PostgreSQL.
+- Interfaz web integrada con el backend.
+- 24 pruebas automatizadas ejecutadas correctamente.
 ```
+
 ## Funcionalidades pendientes
 ```text
-
+- Autenticación y gestión de usuarios.
+- Asignación de responsables.
+- Historial de cambios.
+- Filtros y búsquedas avanzadas.
+- Dashboard e indicadores.
+- Despliegue público.
 ```
+
 ## Principal dificultad encontrada
 ```text
-
+La integración entre el frontend, el backend y la base de datos, especialmente la configuración de las conexiones y la comunicación entre los componentes.
 ```
+
 ## ¿Cómo resolviste los problemas encontrados?
 ```text
-
+Revisé los mensajes de error, consulté documentación y utilicé herramientas de inteligencia artificial como apoyo para identificar problemas y corregir la configuración y el código.
 ```
+
 ## ¿Qué mejorarías con más tiempo?
 ```text
-
+Implementaría autenticación, asignación de responsables, historial de cambios, filtros, indicadores y pruebas adicionales.
 ```
+
 ## Tiempo aproximado dedicado
 ```text
-
+19 horas y 54 minutos, distribuidos entre el 14 y el 15 de noviembre de 2026.
 ```
+
 ## ¿Utilizaste herramientas de inteligencia artificial? ¿Para qué?
 ```text
-
+Sí. Utilicé ChatGPT como apoyo para comprender conceptos, analizar errores, revisar código, resolver problemas de configuración y mejorar la documentación. También revisé y probé las soluciones implementadas.
 ```
+
 ## ¿Qué parte del código consideras más importante explicar?
 ```text
-
+La lógica de negocio del backend, especialmente las validaciones de activos, la creación de órdenes de trabajo y las reglas que controlan las transiciones de estados.
 ```
 
 # Conocimientos sobre Microsoft 365 y Copilot
@@ -368,8 +412,8 @@ Copilot Studio es una herramienta de desarrollo integral de bajo código (low-co
 
 ### Respuesta
 
-
 - **Caso de uso:** Una empresa de mantenimiento industrial distribuye su inventario de activos y el registro de sus órdenes de trabajo entre Listas de SharePoint y libros de Excel compartidos en OneDrive.
+
 ```
 - Implementación:
   - Almacenamiento: Las tablas maestras de activos se alojan en Listas de SharePoint para garantizar control de versiones, auditoría y concurrencia, mientras que los reportes operativos dinámicos se estructuran en archivos de Excel en OneDrive.
