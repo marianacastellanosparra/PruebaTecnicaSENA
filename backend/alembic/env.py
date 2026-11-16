@@ -1,27 +1,31 @@
-
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-
+from sqlalchemy import engine_from_config, pool
 from alembic import context
 
+from app.core import config as app_config
 from app.models import Base
+
 
 # Configuración de Alembic
 config = context.config
 
-# Configuración de logs
+# Leer la configuración del proyecto
+# Se duplican los porcentajes para evitar errores
+# cuando la contraseña contiene caracteres especiales.
+config.set_main_option(
+    "sqlalchemy.url",
+    app_config.settings.DATABASE_URL.replace("%", "%%")
+)
+
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Metadatos de los modelos para detectar cambios
+# Metadatos de los modelos
 target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
-    """Ejecuta migraciones sin establecer una conexión directa."""
-
     url = config.get_main_option("sqlalchemy.url")
 
     context.configure(
@@ -36,8 +40,6 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Ejecuta migraciones mediante una conexión a la base de datos."""
-
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
