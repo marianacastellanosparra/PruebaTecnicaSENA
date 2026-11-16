@@ -27,3 +27,65 @@ Desde la carpeta frontend, ejecutar:
 
 ```bash
 npm install
+```
+
+## 5. Configuración
+
+Crear un archivo `.env` en la carpeta frontend con:
+
+```env
+VITE_API_BASE_URL=http://127.0.0.1:8000/api
+```
+
+## 6. Ejecución
+
+Iniciar el servidor de desarrollo:
+
+```bash
+npm run dev
+```
+
+Abrir en el navegador:
+
+http://localhost:5173/
+
+## 7. Compilación
+
+Para generar la versión de producción:
+
+```bash
+npm run build
+```
+
+## 8. Verificación de código
+
+Ejecutar:
+
+```bash
+npm run lint
+```
+
+## 9. Funcionalidades
+
+### Gestión de activos
+
+- Registrar activos.
+- Consultar activos.
+- Editar información.
+- Desactivar activos.
+
+### Gestión de órdenes de trabajo
+
+- Crear órdenes.
+- Consultar órdenes.
+- Asociar órdenes con activos.
+- Gestionar prioridades.
+- Cambiar estados: Pendiente, En progreso y Finalizada.
+
+## 10. Conexión con el backend
+
+El frontend consume los servicios REST desarrollados con FastAPI mediante Axios.
+
+URL base:
+
+http://127.0.0.1:8000/api
