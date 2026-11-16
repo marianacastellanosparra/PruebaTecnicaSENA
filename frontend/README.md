@@ -1,16 +1,29 @@
-# React + Vite
+# ORION Maintenance Lite - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+## 1. Descripción
 
-Currently, two official plugins are available:
+Interfaz web para la gestión de activos y órdenes de trabajo de ORION Maintenance Lite.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Permite registrar, consultar, editar y desactivar activos, así como crear órdenes de trabajo y gestionar sus estados.
 
-## React Compiler
+## 2. Tecnologías utilizadas
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19
+- Vite
+- JavaScript
+- Axios
+- React Router DOM
+- CSS
 
-## Expanding the Oxlint configuration
+## 3. Requisitos
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+- Node.js
+- npm
+- Backend de ORION Maintenance Lite en ejecución.
+
+## 4. Instalación
+
+Desde la carpeta frontend, ejecutar:
+
+```bash
+npm install
