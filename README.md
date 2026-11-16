@@ -1,223 +1,453 @@
-# Prueba Técnica ORION Maintenance Lite
 
-## Perfil: Aprendiz o Practicante SENA
+# ORION Maintenance Lite
 
-## 1. Introducción
+**Aplicación web para la gestión de activos y órdenes de trabajo de mantenimiento.**
 
-Bienvenido a la prueba técnica para aprendices y practicantes SENA del equipo de desarrollo de ORION.
+Proyecto desarrollado como parte de la prueba técnica para aprendices y practicantes SENA.
 
-El objetivo es conocer tus fundamentos de programación, capacidad para interpretar requerimientos, estructurar una solución y resolver problemas. No esperamos una aplicación con calidad productiva ni una arquitectura empresarial completa.
+---
 
-La prueba está basada en una versión simplificada de **ORION Maintenance**, orientada a la gestión de activos y órdenes de trabajo de mantenimiento.
+## 1. Descripción del proyecto
+
+ORION Maintenance Lite es una aplicación web que permite administrar activos y gestionar órdenes de trabajo relacionadas con su mantenimiento.
+
+El sistema centraliza el registro y consulta de activos, permite crear órdenes de trabajo asociadas a ellos y controlar el avance de cada orden mediante estados.
+
+La solución está construida con una arquitectura separada en frontend y backend, conectada a una base de datos PostgreSQL.
 
 ## 2. Objetivo
 
-Construir una aplicación web sencilla denominada **ORION Maintenance Lite** que permita:
+Desarrollar una aplicación web funcional que permita:
 
-1. Registrar activos.
-2. Consultar activos.
-3. Crear órdenes de trabajo asociadas a un activo.
-4. Consultar órdenes de trabajo.
-5. Actualizar el estado de una orden.
-6. Conservar la información mediante algún mecanismo de persistencia.
+- Registrar y consultar activos.
+- Editar la información de los activos.
+- Desactivar activos sin eliminarlos físicamente.
+- Crear órdenes de trabajo asociadas a activos.
+- Consultar las órdenes de trabajo.
+- Gestionar el estado y la prioridad de las órdenes.
+- Conservar la información mediante una base de datos.
 
-## 3. Alcance obligatorio
+## 3. Tecnologías utilizadas
 
-### 3.1 Gestión de activos
+### Backend
 
-La aplicación debe permitir registrar, listar, consultar, editar y desactivar activos.
+- Python.
+- FastAPI.
+- SQLAlchemy.
+- Pydantic.
+- PostgreSQL.
+- Alembic.
+- Pytest.
+- Uvicorn.
 
-Cada activo debe contener como mínimo:
+### Frontend
+
+- React 19.
+- Vite.
+- JavaScript.
+- Axios.
+- React Router DOM.
+- CSS.
+
+### Herramientas de desarrollo
+
+- Visual Studio Code.
+- Git.
+- GitHub.
+- Supabase para PostgreSQL.
+
+## 4. Estructura del proyecto
+
+La organización del repositorio es la siguiente:
+
+```text
+PruebaTecnicaSENA/
+│
+├── backend/
+│   ├── alembic/
+│   │   └── versions/
+│   ├── app/
+│   │   ├── core/
+│   │   ├── exceptions/
+│   │   ├── models/
+│   │   ├── repositories/
+│   │   ├── routers/
+│   │   ├── schemas/
+│   │   ├── services/
+│   │   └── main.py
+│   ├── tests/
+│   │   ├── integration/
+│   │   └── unit/
+│   ├── .env
+│   ├── .env.example
+│   ├── alembic.ini
+│   ├── pytest.ini
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── App.jsx
+│   │   ├── App.css
+│   │   └── index.css
+│   ├── .env
+│   ├── package.json
+│   └── README.md
+│
+├── docs/
+│   ├── fase-02-diseno-tecnico/
+│   │   └── DISENO_TECNICO.md
+│   ├── fase-03-desarrollo/
+│   │   └── DESARROLLO.md
+│   ├── fase-04-pruebas/
+│   │   └── PLAN_PRUEBAS.md
+│   └── fase-05-integracion/
+│       └── INTEGRACION.md
+│
+├── BACKLOG.md
+├── CHANGELOG.md
+├── GUIA_EJECUCION.md
+├── REFINEMENT.md
+├── README.md
+└── .gitignore
+```
+
+## 5. Funcionalidades implementadas
+
+### 5.1 Gestión de activos
+
+- Registrar activos.
+- Consultar el listado de activos.
+- Consultar activos individualmente.
+- Editar la información de los activos.
+- Desactivar activos.
+- Conservar los registros desactivados.
+- Validar los campos obligatorios.
+- Asignar identificadores y fechas de registro automáticamente.
+
+Cada activo contiene:
 
 - Identificador.
 - Nombre.
-- Tipo de activo.
+- Tipo.
 - Ubicación.
 - Estado.
 - Fecha de registro.
 
-Ejemplos: cámara de tráfico, panel de mensaje variable, semáforo, servidor, equipo de comunicaciones, sensor o estación meteorológica.
+### 5.2 Gestión de órdenes de trabajo
 
-### 3.2 Gestión de órdenes de trabajo
+- Crear órdenes de trabajo.
+- Consultar el listado de órdenes.
+- Consultar órdenes individualmente.
+- Asociar órdenes con activos existentes.
+- Asignar prioridades.
+- Actualizar el estado de las órdenes.
+- Validar las reglas de negocio.
 
-La aplicación debe permitir crear, listar y consultar órdenes, asociarlas a un activo y cambiar su estado.
-
-Cada orden debe contener como mínimo:
+Cada orden contiene:
 
 - Identificador.
 - Activo asociado.
 - Título.
 - Descripción.
-- Prioridad: Baja, Media o Alta.
-- Estado: Pendiente, En progreso o Finalizada.
+- Prioridad.
+- Estado.
 - Fecha de creación.
 
-## 4. Reglas de negocio obligatorias
+### 5.3 Estados y prioridades
 
-1. Una orden debe estar asociada a un activo existente.
-2. No se debe crear un activo sin nombre, tipo y ubicación.
-3. No se debe crear una orden sin título, descripción, prioridad y activo.
-4. Toda orden inicia en `Pendiente`.
-5. El flujo permitido es `Pendiente -> En progreso -> Finalizada`.
-6. Una orden finalizada no puede regresar a un estado anterior.
-7. Los datos deben validarse y los errores deben mostrarse mediante mensajes comprensibles.
-8. Un activo con órdenes asociadas puede desactivarse, pero no debe eliminarse físicamente.
+Las prioridades disponibles son:
 
-## 5. Requerimientos técnicos
+- Baja.
+- Media.
+- Alta.
 
-El candidato puede utilizar las tecnologías con las que tenga mayor familiaridad.
+Los estados disponibles son:
 
-### Frontend
+- Pendiente.
+- En progreso.
+- Finalizada.
 
-- HTML, CSS y JavaScript.
-- React.
-- Angular.
-- Vue.
-- Otra tecnología equivalente.
+El flujo permitido para las órdenes es:
 
-### Backend
+```text
+Pendiente
+    |
+    v
+En progreso
+    |
+    v
+Finalizada
+```
 
-- Java con Spring Boot.
-- C# con ASP.NET Core.
-- JavaScript o TypeScript con Node.js.
-- Python con Flask, FastAPI o Django.
-- PHP.
-- Otra tecnología equivalente.
+No se permiten saltos ni retrocesos en el flujo de estados.
 
-### Persistencia
+## 6. Requisitos para la instalación
 
-- PostgreSQL.
-- MySQL.
-- SQL Server.
-- SQLite.
-- MongoDB.
-- Archivo JSON.
-- Persistencia en memoria, documentando su limitación.
+Antes de ejecutar el proyecto se necesita:
 
-No es obligatorio utilizar una tecnología específica. También se acepta una aplicación monolítica con separación clara entre interfaz, lógica de negocio y acceso a datos.
+- Python.
+- pip.
+- Node.js.
+- npm.
+- Una base de datos PostgreSQL.
+- Git.
 
-## 6. Interfaz mínima
+## 7. Instalación y configuración del backend
 
-### Activos
+### 7.1 Ingresar a la carpeta
 
-- Lista de activos.
-- Formulario de creación.
-- Edición.
-- Detalle.
-- Desactivación.
+Desde la raíz del repositorio:
 
-### Órdenes
+```bash
+cd backend
+```
 
-- Lista de órdenes.
-- Formulario de creación.
-- Selección del activo asociado.
-- Detalle.
-- Actualización de estado.
+### 7.2 Crear el entorno virtual
 
-El diseño gráfico no es el criterio principal, pero la interfaz debe ser comprensible y funcional.
+```bash
+python -m venv .venv
+```
 
-## 7. Manejo de errores
+### 7.3 Activar el entorno virtual
 
-Se deben controlar al menos:
+En Git Bash:
 
-- Campos obligatorios vacíos.
-- Activo inexistente.
-- Orden inexistente.
-- Cambio de estado no permitido.
-- Errores al guardar o consultar información.
+```bash
+source .venv/Scripts/activate
+```
 
-## 8. Uso de Git
+### 7.4 Instalar las dependencias
 
-La solución debe entregarse en un repositorio Git. Se espera:
+```bash
+python -m pip install -r requirements.txt
+```
 
-- Varios commits durante el desarrollo.
-- Mensajes comprensibles.
-- Archivo `.gitignore` apropiado.
-- No versionar dependencias, credenciales ni archivos generados innecesarios.
+### 7.5 Configurar las variables de entorno
 
-No se requiere un flujo avanzado de ramas.
+Crear un archivo llamado `.env` dentro de la carpeta `backend`.
+
+Tomar como referencia el archivo `.env.example`.
+
+Configurar las siguientes variables:
+
+```env
+ENVIRONMENT=development
+DATABASE_URL=postgresql+psycopg2://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require
+FRONTEND_ORIGIN=http://localhost:5173
+```
+
+Reemplazar los valores de ejemplo por los datos correspondientes a la base de datos PostgreSQL.
+
+**Importante:** No compartir ni subir el archivo `.env` a GitHub. Las credenciales deben mantenerse privadas.
+
+### 7.6 Ejecutar las migraciones
+
+Desde la carpeta `backend`:
+
+```bash
+python -m alembic upgrade head
+```
+
+Este comando aplica las migraciones y prepara las tablas de la base de datos.
+
+### 7.7 Iniciar el backend
+
+```bash
+uvicorn app.main:app --reload
+```
+
+El backend estará disponible en:
+
+http://127.0.0.1:8000
+
+La documentación interactiva de la API estará disponible en:
+
+http://127.0.0.1:8000/docs
+
+## 8. Instalación y configuración del frontend
+
+Abrir una segunda terminal.
+
+### 8.1 Ingresar a la carpeta
+
+Desde la raíz del repositorio:
+
+```bash
+cd frontend
+```
+
+### 8.2 Instalar las dependencias
+
+```bash
+npm install
+```
+
+### 8.3 Configurar las variables de entorno
+
+Crear un archivo `.env` dentro de la carpeta `frontend`:
+
+```env
+VITE_API_BASE_URL=http://127.0.0.1:8000/api
+```
+
+Esta variable establece la dirección base para las solicitudes al backend.
+
+### 8.4 Iniciar el frontend
+
+```bash
+npm run dev
+```
+
+La aplicación estará disponible en:
+
+http://localhost:5173/
 
 ## 9. Pruebas
 
-Debe incluirse como mínimo una prueba automatizada sobre una funcionalidad importante, por ejemplo:
+El proyecto utiliza Pytest para ejecutar pruebas automatizadas sobre los servicios y los endpoints del backend.
 
-- Crear un activo correctamente.
-- Rechazar un activo sin nombre.
-- Crear una orden asociada a un activo.
-- Rechazar una orden sin activo.
-- Impedir que una orden finalizada regrese a `En progreso`.
+### 9.1 Ejecutar las pruebas
 
-Si no se logra implementar una prueba automatizada, se debe documentar qué se probaría, escenario, resultado esperado y casos de error.
+Desde la carpeta `backend`, con el entorno virtual activado:
 
-## 10. Documentación de la solución
+```bash
+python -m pytest -v
+```
 
-La entrega debe documentar:
+### 9.2 Resultado obtenido
 
-- Tecnologías utilizadas.
-- Instrucciones de instalación y ejecución.
-- Estructura del proyecto.
-- Decisiones técnicas principales.
-- Limitaciones conocidas.
-- Mejoras futuras.
+Se ejecutaron satisfactoriamente:
 
-## 11. Entregables
+- 18 pruebas unitarias.
+- 6 pruebas de integración.
+- 24 pruebas exitosas en total.
 
-- Código fuente.
-- `README.md` actualizado.
-- `.gitignore`.
-- Instrucciones de instalación y ejecución.
-- Mecanismo de persistencia o script de base de datos.
-- Pruebas o evidencia de los escenarios de prueba.
-- Respuestas a `REFINEMENT.md`.
-- Historial de commits.
+También se realizaron validaciones manuales de las funcionalidades desde la interfaz web.
 
-## 12. Funcionalidades adicionales
+### 9.3 Verificación del frontend
 
-Son opcionales y pueden generar puntos adicionales:
+Para generar la compilación de producción:
 
-- Dockerfile.
-- Docker Compose.
-- Autenticación.
-- Dashboard.
-- Filtros y búsquedas.
-- Paginación.
-- Pruebas adicionales.
-- Swagger/OpenAPI.
-- CI/CD.
-- Manejo de usuarios o responsables.
+```bash
+npm run build
+```
+
+Para ejecutar el análisis estático:
+
+```bash
+npm run lint
+```
+
+## 10. Endpoints principales de la API
+
+La API expone los siguientes endpoints:
+
+### Activos
+
+| Método | Endpoint | Descripción |
+|---|---|---|
+| GET | `/api/assets` | Consultar activos |
+| POST | `/api/assets` | Registrar activo |
+| GET | `/api/assets/{asset_id}` | Consultar un activo |
+| PUT | `/api/assets/{asset_id}` | Editar activo |
+| PATCH | `/api/assets/{asset_id}/deactivate` | Desactivar activo |
+
+### Órdenes de trabajo
+
+| Método | Endpoint | Descripción |
+|---|---|---|
+| GET | `/api/work-orders` | Consultar órdenes |
+| POST | `/api/work-orders` | Crear orden |
+| GET | `/api/work-orders/{work_order_id}` | Consultar una orden |
+| PATCH | `/api/work-orders/{work_order_id}/status` | Actualizar estado |
+
+### Verificación
+
+| Método | Endpoint | Descripción |
+|---|---|---|
+| GET | `/api/health` | Verificar estado de la API |
+
+## 11. Base de datos
+
+El proyecto utiliza PostgreSQL como sistema de gestión de base de datos.
+
+Se implementaron dos entidades principales:
+
+### Assets
+
+Almacena la información de los activos registrados.
+
+### Work Orders
+
+Almacena las órdenes de trabajo y su relación con los activos.
+
+La relación entre ambas entidades se establece mediante la clave foránea `asset_id`.
+
+SQLAlchemy permite gestionar la comunicación con la base de datos y Alembic administra las migraciones del esquema.
+
+## 12. Documentación adicional
+
+El repositorio contiene documentos que complementan el desarrollo de la solución:
+
+| Archivo | Descripción |
+|---|---|
+| `BACKLOG.md` | Organización y priorización de actividades |
+| `REFINEMENT.md` | Análisis y refinamiento de requerimientos |
+| `GUIA_EJECUCION.md` | Guía de ejecución de la prueba técnica |
+| `CHANGELOG.md` | Registro cronológico de cambios |
+| `docs/fase-02-diseno-tecnico/DISENO_TECNICO.md` | Diseño técnico de la solución |
+| `docs/fase-03-desarrollo/DESARROLLO.md` | Documentación del desarrollo |
+| `docs/fase-04-pruebas/PLAN_PRUEBAS.md` | Plan y resultados de pruebas |
+| `docs/fase-05-integracion/INTEGRACION.md` | Documentación de la integración |
+
+## 13. Limitaciones conocidas
+
+La versión actual está enfocada en cumplir las funcionalidades principales de la prueba técnica.
+
+No incluye todavía:
+
+- Autenticación y autorización de usuarios.
+- Administración de responsables de las órdenes.
 - Historial de cambios.
-- Diseño responsive.
+- Búsqueda avanzada.
+- Filtros avanzados.
+- Panel de estadísticas.
 - Despliegue público.
 
-No deben priorizarse antes del alcance obligatorio.
+## 14. Mejoras futuras
 
-## 13. Uso de inteligencia artificial
+Como posibles mejoras se plantean:
 
-Se permite utilizar herramientas de IA como apoyo para consultar conceptos, entender errores, revisar documentación o mejorar redacción. El candidato debe comprender y poder explicar el código entregado.
+- Implementar autenticación y roles de usuario.
+- Incorporar responsables para las órdenes de trabajo.
+- Agregar historial de modificaciones.
+- Implementar filtros y búsquedas.
+- Incorporar indicadores y estadísticas.
+- Mejorar las opciones de administración.
+- Implementar integración y entrega continua.
+- Evaluar el despliegue de la aplicación en un entorno público.
 
-## 14. Sustentación
+## 15. Control de versiones
 
-El candidato tendrá aproximadamente **15 a 20 minutos** para presentar:
+El proyecto utiliza Git y GitHub para el control de versiones.
 
-1. Problema entendido.
-2. Solución construida.
-3. Estructura utilizada.
-4. Demostración funcional.
-5. Principales dificultades.
-6. Mejoras futuras.
+Se realizaron commits progresivos para registrar los avances del desarrollo y la documentación.
 
-Posteriormente se realizará una conversación técnica.
+Repositorio:
 
-## 15. Recomendaciones finales
+https://github.com/marianacastellanosparra/PruebaTecnicaSENA
 
-- Lee toda la prueba antes de comenzar.
-- Revisa `BACKLOG.md`.
-- Responde `REFINEMENT.md`.
-- Prioriza las funcionalidades obligatorias.
-- Realiza commits progresivos.
-- Valida los datos.
-- Documenta decisiones y pendientes.
-- No incluyas contraseñas, tokens o información privada.
-- Construye una solución que puedas explicar.
+## 16. Autoría y contexto
 
-¡Éxitos en la prueba!
+**Proyecto:** ORION Maintenance Lite.
+
+**Contexto:** Prueba técnica para aprendices y practicantes SENA.
+
+**Periodo de trabajo:** 14 y 15 de noviembre de 2026.
+
+**Versión:** 1.0.0.
+
+---
+
+**ORION Maintenance Lite - Gestión de activos y órdenes de trabajo de mantenimiento.**
