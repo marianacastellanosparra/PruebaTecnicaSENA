@@ -101,8 +101,16 @@ PruebaTecnicaSENA/
 │   │   └── DESARROLLO.md
 │   ├── fase-04-pruebas/
 │   │   └── PLAN_PRUEBAS.md
-│   └── fase-05-integracion/
-│       └── INTEGRACION.md
+│   ├── fase-05-integracion/
+│   │   └── INTEGRACION.md
+│   ├── fase-06-despliegue/
+│   │   └── DESPLIEGUE.md
+│   ├── fase-07-documentacion/
+│   │   └── DOCUMENTACION.md
+│   ├── fase-08-validacion-final/
+│   │   └── VALIDACION_FINAL.md
+│   └── fase-09-entrega/
+│       └── ENTREGA.md
 │
 ├── BACKLOG.md
 ├── CHANGELOG.md
@@ -400,6 +408,10 @@ El repositorio contiene documentos que complementan el desarrollo de la solució
 | `docs/fase-03-desarrollo/DESARROLLO.md` | Documentación del desarrollo |
 | `docs/fase-04-pruebas/PLAN_PRUEBAS.md` | Plan y resultados de pruebas |
 | `docs/fase-05-integracion/INTEGRACION.md` | Documentación de la integración |
+| `docs/fase-06-despliegue/DESPLIEGUE.md` | Configuración y ejecución local |
+| `docs/fase-07-documentacion/DOCUMENTACION.md` | Organización documental |
+| `docs/fase-08-validacion-final/VALIDACION_FINAL.md` | Validación final |
+| `docs/fase-09-entrega/ENTREGA.md` | Documentación de entrega |
 
 ## 13. Limitaciones conocidas
 
